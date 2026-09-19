@@ -1,4 +1,4 @@
-# muagba-docs
+# docsys
 
 Система проектной документации для ИИ-агентов. Плагин Claude Code.
 
@@ -20,15 +20,15 @@
 ## Установка
 
 ```
-/plugin marketplace add <owner>/muagba-docs
-/plugin install muagba-docs@muagba-docs
+/plugin marketplace add <owner>/docsys
+/plugin install docsys@docsys
 ```
 
 Локально:
 
 ```
-/plugin marketplace add /home/rustam/develop/simbioz_team/muagba-docs
-/plugin install muagba-docs@muagba-docs
+/plugin marketplace add /home/rustam/develop/simbioz_team/docsys
+/plugin install docsys@docsys
 ```
 
 Затем в проекте:

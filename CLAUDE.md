@@ -1,14 +1,14 @@
-# muagba-docs — система документации как плагин
+# docsys — система документации как плагин
 
 Репозиторий-маркетплейс с одним плагином. Прикладного кода нет.
 
 ## Раскладка
 
-- `plugins/muagba-docs/commands/` — семь команд `/doc-*`, плоские md
-- `plugins/muagba-docs/skills/doc-system/` — справочник: контракт метаданных,
+- `plugins/docsys/commands/` — семь команд `/doc-*`, плоские md
+- `plugins/docsys/skills/doc-system/` — справочник: контракт метаданных,
   статусы, tier, устройство реестров
-- `plugins/muagba-docs/scripts/` — код проверок и сборки реестров
-- `plugins/muagba-docs/templates/` — шаблоны типов документов
+- `plugins/docsys/scripts/` — код проверок и сборки реестров
+- `plugins/docsys/templates/` — шаблоны типов документов
 
 ## Правила работы
 
@@ -30,8 +30,8 @@
 ## Проверка после правок
 
 ```bash
-python3 -m py_compile plugins/muagba-docs/scripts/*.py
-bash -n plugins/muagba-docs/scripts/*.sh
+python3 -m py_compile plugins/docsys/scripts/*.py
+bash -n plugins/docsys/scripts/*.sh
 python3 -c "import json,glob;[json.load(open(f)) for f in glob.glob('**/*.json',recursive=True)]"
 ```
 

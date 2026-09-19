@@ -1,13 +1,13 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "muagba-docs",
+  "name": "docsys",
   "description": "Система проектной документации для ИИ-агентов",
   "owner": { "name": "Rustam" },
   "plugins": [
     {
-      "name": "muagba-docs",
+      "name": "docsys",
       "description": "Контракт метаданных, реестры INDEX.md и TAGS.md, детерминированная пересборка и четыре проверки документации. Семь команд /doc-*.",
-      "source": "./plugins/muagba-docs",
+      "source": "./plugins/docsys",
       "category": "productivity"
     }
   ]

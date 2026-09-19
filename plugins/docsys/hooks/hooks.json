@@ -1,5 +1,5 @@
 {
-  "description": "muagba-docs — реестры документации всегда собраны",
+  "description": "docsys — реестры документации всегда собраны",
   "hooks": {
     "PostToolUse": [
       {
