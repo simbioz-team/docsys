@@ -60,11 +60,25 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/rebuild_registries.py"
 
 ## Шаг 3. Подключение к гейту
 
-Если в проекте есть `.claude/check.sh` — добавь в него строку:
+Если в проекте есть `.claude/check.sh` — добавь в него блок:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/check_docs.py" || exit 1
+# Проверка документации. Путь ищется, а не берётся из ${CLAUDE_PLUGIN_ROOT}:
+# в check.sh эта переменная либо пуста (CI, запуск руками), либо указывает на
+# ТОТ плагин, чей хук нас вызвал, — а это не обязательно docsys.
+DOCSYS="${DOCSYS_HOME:-}"
+[ -n "$DOCSYS" ] || DOCSYS=$(ls -d "$HOME"/.claude/plugins/cache/*/docsys/*/ 2>/dev/null | sort -V | tail -1)
+if [ -n "$DOCSYS" ] && [ -f "$DOCSYS/scripts/check_docs.py" ]; then
+  run python3 "$DOCSYS/scripts/check_docs.py"
+else
+  echo "check.sh: docsys не найден. Поставь плагин или задай DOCSYS_HOME." >&2
+  exit 1
+fi
 ```
+
+Почему не пропустить проверку молча, когда плагина нет: проект её объявил,
+значит она часть контракта. Молчаливый пропуск даёт зелёный CI при
+неработающей проверке — ровно то, ради чего гейты и заводят.
 
 Нет `check.sh` — скажи об этом и предложи завести: без гейта проверки
 документации никто не запустит.
