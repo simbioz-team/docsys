@@ -20,7 +20,7 @@
 ## Установка
 
 ```
-/plugin marketplace add <owner>/docsys
+/plugin marketplace add simbioz-team/docsys
 /plugin install docsys@docsys
 ```
 
