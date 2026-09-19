@@ -25,7 +25,8 @@ disable-model-invocation: true
     { "name": "requirement", "template": "requirement.md", "path": "docs/requirements/{slug}.md" },
     { "name": "research",    "template": "research.md",    "path": "docs/research/{slug}.md" },
     { "name": "reference",   "template": "reference.md",   "path": "docs/reference/{slug}.md" },
-    { "name": "explainer",   "template": "explainer.md",   "path": "docs/explainers/{slug}.md" }
+    { "name": "explainer",   "template": "explainer.md",   "path": "docs/explainers/{slug}.md" },
+    { "name": "source",      "template": "source.md",      "path": "docs/sources/{slug}.md" }
   ],
   "exclude": ["docs/INDEX.md", "docs/TAGS.md"]
 }
@@ -33,6 +34,12 @@ disable-model-invocation: true
 
 `index_limit: 0` — показывать в INDEX.md все документы. Поставь число, когда их
 станет столько, что таблица перестанет читаться.
+
+Тип `source` — принесённые снаружи материалы: бриф, ТЗ, расшифровка встречи.
+Он не такой, как остальные: документ этого типа **не редактируется после
+создания**, а поле `origin` обязательно — источник без указания, чей он и
+когда написан, через полгода анонимка. Если проекту такое не нужно, тип можно
+не заводить.
 
 ## Шаг 2. Каталоги и реестры
 
