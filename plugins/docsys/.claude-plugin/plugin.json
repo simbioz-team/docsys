@@ -1,9 +1,17 @@
 {
   "name": "docsys",
   "displayName": "Docsys",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Система проектной документации для агентов: контракт метаданных, два реестра (навигационный INDEX.md и машинный TAGS.md), детерминированная пересборка, пять проверок — допустимость метаданных, реестры, дисциплина статусов, разрешимость ссылок, отставание от кода. Семь команд /doc-*.",
-  "author": { "name": "Rustam" },
+  "author": {
+    "name": "Rustam"
+  },
   "license": "MIT",
-  "keywords": ["documentation", "registry", "frontmatter", "adr", "governance"]
+  "keywords": [
+    "documentation",
+    "registry",
+    "frontmatter",
+    "adr",
+    "governance"
+  ]
 }
