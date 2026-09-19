@@ -73,12 +73,13 @@
 
 ```bash
 python3 scripts/check_docs.py            # всё
-python3 scripts/check_docs.py --only links
+python3 scripts/check_docs.py --only frontmatter
 python3 scripts/check_docs.py --strict   # свежесть тоже гейт
 ```
 
 | Проверка | Что ловит | Гейт |
 |---|---|---|
+| `frontmatter` | значение поля вне словаря конфига, битая дата, документ не в своём каталоге, недозаполненный шаблон | да |
 | `registries` | реестры разошлись с документами | да |
 | `status` | статус в теле ≠ frontmatter; `active` ссылается на `draft` или мёртвое | да |
 | `links` | ссылка не открывается | да, с храповиком |

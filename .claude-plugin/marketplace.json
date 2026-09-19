@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "docsys",
-      "description": "Контракт метаданных, реестры INDEX.md и TAGS.md, детерминированная пересборка и четыре проверки документации. Семь команд /doc-*.",
+      "description": "Контракт метаданных, реестры INDEX.md и TAGS.md, детерминированная пересборка и пять проверок документации. Семь команд /doc-*.",
       "source": "./plugins/docsys",
       "category": "productivity"
     }

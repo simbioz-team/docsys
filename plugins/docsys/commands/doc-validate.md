@@ -11,13 +11,14 @@ disable-model-invocation: true
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/check_docs.py"
 ```
 
-Одна проверка вместо всех: `--only registries|status|links|freshness`.
+Одна проверка вместо всех: `--only frontmatter|registries|status|links|freshness`.
 Сделать свежесть гейтом: `--strict`.
 
 ## Шаг 2. Разбор находок
 
 | Проверка | Что означает находка | Что делать |
 |---|---|---|
+| `frontmatter` | значение поля вне словаря, битая дата, документ не там, где предписано типу, остался плейсхолдер шаблона | привести значение к словарю из `.claude/doc-config.json`, перенести файл или заполнить шаблон |
 | `registries` | реестры разошлись с документами | `rebuild_registries.py` |
 | `status` | статус в теле ≠ frontmatter, либо active ссылается на draft или мёртвое | выровнять оба места; ссылку — на активный источник или снять |
 | `links` | ссылка не открывается | поправить путь, снять ссылку или закрыть hatch'ем с причиной |
@@ -32,7 +33,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/check_docs.py"
 обязательна. Отводом закрывают ссылку, которую чинить нечем, а не ту, которую
 лень поправить.
 
-Для `status` — `<!-- noqa: doc-status-bypass <причина> -->`, то же правило.
+Для `status` — `<!-- noqa: doc-status-bypass <причина> -->`, для `frontmatter` —
+`<!-- noqa: doc-frontmatter <причина> -->`. То же правило.
 
 ## Шаг 4. Перепрогон
 
