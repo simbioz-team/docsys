@@ -19,7 +19,7 @@ disable-model-invocation: true
   "statuses": ["active", "draft", "deprecated", "superseded", "archived"],
   "tiers": ["foundation", "feature", "feature-derived"],
   "types": [
-    { "name": "adr",         "template": "adr.md",         "path": "docs/decisions/ADR-{NNN}-{slug}.md" },
+    { "name": "adr",         "template": "adr.md",         "path": "docs/decisions/adr-{NNN}-{slug}.md" },
     { "name": "overview",    "template": "overview.md",    "path": "docs/architecture/{slug}.md" },
     { "name": "design",      "template": "design.md",      "path": "docs/architecture/{slug}.md" },
     { "name": "requirement", "template": "requirement.md", "path": "docs/requirements/{slug}.md" },
