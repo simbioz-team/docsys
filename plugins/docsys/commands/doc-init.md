@@ -26,14 +26,23 @@ disable-model-invocation: true
     { "name": "research",    "template": "research.md",    "path": "docs/research/{slug}.md" },
     { "name": "reference",   "template": "reference.md",   "path": "docs/reference/{slug}.md" },
     { "name": "explainer",   "template": "explainer.md",   "path": "docs/explainers/{slug}.md" },
-    { "name": "source",      "template": "source.md",      "path": "docs/sources/{slug}.md" }
+    { "name": "source",      "template": "source.md",      "path": "docs/sources/{slug}.md" },
+    { "name": "frame",       "template": "frame.md",       "path": "docs/{slug}.md" },
+    { "name": "product",     "template": "frame.md",       "path": "docs/product/{slug}.md" }
   ],
-  "exclude": ["docs/INDEX.md", "docs/TAGS.md"]
+  "exclude": ["docs/INDEX.md", "docs/TAGS.md", "docs/decisions/adr-0000-template.md"]
 }
 ```
 
 `index_limit: 0` — показывать в INDEX.md все документы. Поставь число, когда их
 станет столько, что таблица перестанет читаться.
+
+Типы `frame` и `product` — документы рамок: конституция, стек, раскладка,
+миссия, дорожная карта, словарь. Они отличаются от остальных тем, что
+**поставляются каркасом уже созданными**, со слотами вместо содержания.
+`/doc-new` для них не нужен — их заполняют на месте, по вопросам этапа.
+Различаются только местом: `product` лежит в `docs/product/`, `frame` — в
+корне `docs/`.
 
 Тип `source` — принесённые снаружи материалы: бриф, ТЗ, расшифровка встречи.
 Он не такой, как остальные: документ этого типа **не редактируется после
