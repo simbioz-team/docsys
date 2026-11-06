@@ -18,9 +18,11 @@
     забота: их связность не наша забота.
 
 Не проверяются: внешние ссылки, якоря без пути, шаблоны с `*`, `<…>`, `{…}`, `$`, а также
-всё, что ведёт в `specs/`. Спека — черновик текущей работы, она умирает после реализации и
-намеренно не хранится в git. Ссылка на
-умершую спеку — след процесса, а не битая ссылка, и чинить её нечем.
+всё, что ведёт в `specs/`, — пока `specs/` не объявлен корнем документов в `extra_roots`.
+Без этого спека — черновик текущей работы, она умирает после реализации и может не
+храниться в git; ссылка на умершую спеку — след процесса, а не битая ссылка. Когда спеки
+— документы (`extra_roots: [{"glob": "specs/*/spec.md"}]`), ссылки в `specs/` проверяются
+как любые другие: и на `spec.md`, и на `plan.md`/`tasks.md` рядом (последние — как файлы).
 
 Храповик: `.claude/doc-links-baseline.json` — известные нарушения не блокируют
 работу, но множество может только сокращаться. Новая битая ссылка — ошибка.
@@ -55,6 +57,8 @@ import docs_lib as _docs_lib
 # проверяемого репозитория. Ищем вверх от текущей директории по .git или
 # .claude/doc-config.json.
 ROOT = _docs_lib.find_root()
+CFG = _docs_lib.load_config(ROOT)
+DOCS_DIR = CFG["docs_dir"].rstrip("/")
 BASELINE_REL = ".claude/doc-links-baseline.json"
 
 # Ссылка вида [текст](путь) или [текст](путь#якорь). Пробелы внутри пути не поддержаны
@@ -104,8 +108,14 @@ def sources(root: pathlib.Path = ROOT) -> list[pathlib.Path]:
     """
     candidates: list[pathlib.Path] = []
     candidates += sorted(
-        p for p in (root / "docs").rglob("*.md") if p.name != "TAGS.md"
+        p for p in (root / DOCS_DIR).rglob("*.md") if p.name != "TAGS.md"
     )
+    # Документы доп. корней (`specs/*/spec.md`) — их ссылки проверяются так же.
+    candidates += [
+        p
+        for rel, p in _docs_lib.iter_docs(root, CFG)
+        if not rel.startswith(DOCS_DIR + "/")
+    ]
     candidates += sorted(root.glob("*.md"))
     candidates += sorted((root / "services").rglob("AGENTS.md"))
     candidates += sorted((root / "tasks").glob("sprint-*.yaml"))
@@ -183,12 +193,18 @@ def _targets_from_sprint(text: str) -> list[tuple[str, int]]:
     return out
 
 
+# `specs/` объявлен корнем документов — ссылки туда больше не пропускаются.
+_SPECS_ARE_DOCS = "specs" in _docs_lib.extra_bases(CFG)
+
+
 def _checkable(target: str) -> bool:
     if not target or target.startswith(SKIP_PREFIX):
         return False
     if set(target) & SKIP_CHARS:
         return False
-    if target.startswith(("specs/", "//")) or "/specs/" in target:
+    if target.startswith("//"):
+        return False
+    if not _SPECS_ARE_DOCS and (target.startswith("specs/") or "/specs/" in target):
         return False
     return "/" in target or pathlib.PurePath(target).suffix in PATH_SUFFIXES
 
@@ -196,7 +212,7 @@ def _checkable(target: str) -> bool:
 def _resolves_absolute(target: str, root: pathlib.Path) -> bool:
     """Разрешается ли путь от корня репозитория или от `docs/` — оба написания в ходу."""
     t = target.lstrip("/")
-    return (root / t).exists() or (root / "docs" / t).exists()
+    return (root / t).exists() or (root / DOCS_DIR / t).exists()
 
 
 def _basename_unique(target: str, root: pathlib.Path) -> bool:
@@ -210,7 +226,13 @@ def _basename_unique(target: str, root: pathlib.Path) -> bool:
     names = _basename_cache.get(root)
     if names is None:
         names = {}
-        for p in (root / "docs").rglob("*.md"):
+        files = list((root / DOCS_DIR).rglob("*.md"))
+        files += [
+            p
+            for rel, p in _docs_lib.iter_docs(root, CFG)
+            if not rel.startswith(DOCS_DIR + "/")
+        ]
+        for p in files:
             if not _skip(p):
                 names[p.name] = names.get(p.name, 0) + 1
         _basename_cache[root] = names

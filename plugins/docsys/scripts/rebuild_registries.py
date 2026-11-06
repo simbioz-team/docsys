@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Пересборка docs/INDEX.md и docs/TAGS.md из frontmatter документов.
 
+Документы — под `docs_dir` и по шаблонам `extra_roots` (например, `specs/*/spec.md`).
+
 Зачем скриптом, а не инструкцией агенту: реестр обязан отражать источник, а не
 догадку о нём. Агент, перестраивающий таблицу вручную, подставляет правдоподобные
 значения в пустые поля — и документ выглядит актуальным, не будучи им. Здесь
@@ -19,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
 import sys
 
@@ -72,12 +75,16 @@ def render_index(rows: list[dict], cfg: dict) -> str:
     docs_dir = cfg["docs_dir"]
     statuses = list(cfg["statuses"])
 
-    # Счётчики по разделу верхнего уровня внутри docs_dir.
+    # Счётчики по разделу верхнего уровня внутри docs_dir. Документ доп. корня
+    # (`specs/001-a/spec.md`) считается в разделе по первому каталогу своего
+    # пути — `specs`: спеки отдельной строкой, а не россыпью по номерам.
     sections: dict[str, dict[str, int]] = {}
     for r in rows:
-        rest = r["path"][len(docs_dir) + 1:] if r["path"].startswith(docs_dir + "/") else r["path"]
-        parts = rest.split("/")
-        section = parts[0] if len(parts) > 1 else "(корень)"
+        if r["path"].startswith(docs_dir + "/"):
+            parts = r["path"][len(docs_dir) + 1:].split("/")
+            section = parts[0] if len(parts) > 1 else "(корень)"
+        else:
+            section = r["path"].split("/")[0]
         bucket = sections.setdefault(section, {s: 0 for s in statuses} | {lib.MISSING: 0})
         bucket[r["status"] if r["status"] in bucket else lib.MISSING] += 1
 
@@ -140,7 +147,8 @@ def _relative_to_index(doc_path: str, cfg: dict) -> str:
     try:
         return pathlib.PurePosixPath(doc_path).relative_to(index_dir).as_posix()
     except ValueError:
-        return doc_path
+        # Документ вне каталога реестра — из доп. корня: `../specs/001-a/spec.md`.
+        return pathlib.PurePosixPath(os.path.relpath(doc_path, index_dir.as_posix())).as_posix()
 
 
 def main() -> int:
@@ -155,7 +163,8 @@ def main() -> int:
     rows = collect(root, cfg)
 
     if not rows:
-        print(f"документов не найдено под {cfg['docs_dir']}/ — реестры не тронуты")
+        where = ", ".join([f"{cfg['docs_dir']}/", *lib.extra_globs(cfg)])
+        print(f"документов не найдено под {where} — реестры не тронуты")
         return 0
 
     targets = {

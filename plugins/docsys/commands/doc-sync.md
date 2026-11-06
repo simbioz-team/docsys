@@ -16,7 +16,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/rebuild_registries.py" --check
 ## Шаг 2. Что менялось руками
 
 ```bash
-git status --short -- $(python3 -c "import json;print(json.load(open('.claude/doc-config.json'))['docs_dir'])")
+git status --short -- $(python3 -c "import json;c=json.load(open('.claude/doc-config.json'));print(' '.join([c['docs_dir']]+[':(glob)'+(r['glob'] if isinstance(r,dict) else r) for r in c.get('extra_roots',[])]))")
 ```
 
 Покажи изменённые и новые документы.

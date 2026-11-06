@@ -167,7 +167,16 @@ def subjects(cfg: dict, root: pathlib.Path = ROOT) -> list[dict]:
 
     skip_types = set(cfg.get("skip_types", []))
     skip_statuses = set(cfg.get("skip_statuses", []))
-    for p in sorted((root / "docs").rglob("*.md")):
+    doc_cfg = _docs_lib.load_config(root)
+    docs_dir = doc_cfg["docs_dir"].rstrip("/")
+    doc_files = sorted((root / docs_dir).rglob("*.md"))
+    # Документы доп. корней (`specs/*/spec.md`) с `related_code:` — тоже под сверкой.
+    doc_files += [
+        p
+        for rel, p in _docs_lib.iter_docs(root, doc_cfg)
+        if not rel.startswith(docs_dir + "/")
+    ]
+    for p in doc_files:
         if any(part in SKIP_DIRS for part in p.parts):
             continue
         # Документ, записывающий момент, устареть не может: исследование, аудит и

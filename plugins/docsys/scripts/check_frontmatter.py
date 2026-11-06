@@ -62,15 +62,34 @@ def type_names(cfg: dict) -> list[str]:
 
 
 def expected_dirs(cfg: dict) -> dict[str, str]:
-    """Каталог, предписанный типу его `path`, без файловой части и плейсхолдеров."""
+    """Каталог, предписанный типу его `path`, без файловой части.
+
+    Плейсхолдеры в каталоге (`specs/{NNN}-{slug}/spec.md`) остаются: каталог
+    тогда сверяется по шаблону, а не равенством строк.
+    """
     out: dict[str, str] = {}
     for t in cfg.get("types", []):
         if not isinstance(t, dict) or "name" not in t or "path" not in t:
             continue
-        parent = pathlib.PurePosixPath(t["path"]).parent.as_posix()
-        if "{" not in parent:
-            out[t["name"]] = parent
+        out[t["name"]] = pathlib.PurePosixPath(t["path"]).parent.as_posix()
     return out
+
+
+PLACEHOLDER_PART = re.compile(r"\{[^{}/]*\}")
+
+
+def dir_matches(actual: str, expected: str) -> bool:
+    """Каталог файла против каталога из `path` типа.
+
+    Без плейсхолдеров — равенство, как было. С ними каждый `{…}` — непустой
+    кусок одного каталога: `specs/{NNN}-{slug}` примет `specs/001-a`, но не
+    `specs/001-a/sub` и не `docs/specs`.
+    """
+    if "{" not in expected:
+        return actual == expected
+    pieces = PLACEHOLDER_PART.split(expected)
+    rx = "[^/]+".join(re.escape(x) for x in pieces)
+    return re.fullmatch(rx, actual) is not None
 
 
 def check_doc(rel: str, text: str, cfg: dict, today: datetime.date) -> list[Finding]:
@@ -139,7 +158,7 @@ def check_doc(rel: str, text: str, cfg: dict, today: datetime.date) -> list[Find
     dirs = expected_dirs(cfg)
     if tp in dirs:
         actual = pathlib.PurePosixPath(rel).parent.as_posix()
-        if actual != dirs[tp]:
+        if not dir_matches(actual, dirs[tp]):
             out.append(Finding(rel, "path", f"тип {tp!r} размещается в {dirs[tp]}/, а файл в {actual}/",
                                f"перенести в {dirs[tp]}/ либо поправить тип"))
 
@@ -153,7 +172,7 @@ def check_doc(rel: str, text: str, cfg: dict, today: datetime.date) -> list[Find
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("paths", nargs="*", help="конкретные .md; по умолчанию все под docs_dir")
+    ap.add_argument("paths", nargs="*", help="конкретные .md; по умолчанию все под docs_dir и extra_roots")
     ap.add_argument("--root", type=pathlib.Path, default=None)
     args = ap.parse_args()
 
@@ -165,8 +184,13 @@ def main() -> int:
         pairs = []
         for a in args.paths:
             p = (root / a).resolve() if not pathlib.Path(a).is_absolute() else pathlib.Path(a)
-            if p.is_file():
-                pairs.append((p.relative_to(root).as_posix(), p))
+            if not p.is_file():
+                continue
+            rel = p.relative_to(root).as_posix()
+            # План и задачи рядом со спекой — рабочие материалы, не документы.
+            if lib.is_material(rel, cfg):
+                continue
+            pairs.append((rel, p))
     else:
         pairs = list(lib.iter_docs(root, cfg))
 
