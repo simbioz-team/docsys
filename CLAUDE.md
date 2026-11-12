@@ -4,11 +4,13 @@
 
 ## Раскладка
 
-- `plugins/docsys/commands/` — семь команд `/doc-*`, плоские md
+- `plugins/docsys/commands/` — восемь команд `/doc-*`, плоские md
 - `plugins/docsys/skills/doc-system/` — справочник: контракт метаданных,
   статусы, tier, устройство реестров
 - `plugins/docsys/scripts/` — код проверок и сборки реестров
 - `plugins/docsys/templates/` — шаблоны типов документов
+- `tests/` — тесты: выгрузка на поддельном Drive, `exclude` и хук; `specs/` —
+  спеки доработок
 
 ## Правила работы
 
@@ -33,6 +35,7 @@
 python3 -m py_compile plugins/docsys/scripts/*.py
 bash -n plugins/docsys/scripts/*.sh
 python3 -c "import json,glob;[json.load(open(f)) for f in glob.glob('**/*.json',recursive=True)]"
+python3 -m unittest discover -s tests
 ```
 
 Скрипты проверяются на настоящем дереве документов, а не на вид: заведите

@@ -40,6 +40,11 @@ jobs:
             | xargs -0 -r python3 -m py_compile
           echo "python: ок"
 
+      # Выгрузка в Drive — на поддельном сервере из tests/fake_drive.py:
+      # сети и токенов CI не нужно.
+      - name: Тесты
+        run: python3 -m unittest discover -s tests -v
+
       - name: Валидность JSON
         run: |
           python3 - <<'PY'

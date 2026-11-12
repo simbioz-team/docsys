@@ -152,9 +152,18 @@ def extra_bases(cfg: dict[str, Any]) -> list[str]:
 
 
 def _excluded(rel: str, cfg: dict[str, Any]) -> bool:
+    """Исключён ли путь шаблоном из `exclude`.
+
+    Два разбора, объединением. `PurePosixPath.match` — прежний: сравнивает с
+    правого края, и `**` в нём не спускается глубже одного каталога —
+    `docs/fsi/**` пропускал `docs/fsi/a/b.md`. `_glob_full` — от корня, `**` —
+    любая глубина. Объединение чинит `**`, не сужая того, что исключалось
+    раньше: проект, который был зелёным, зелёным и останется.
+    """
     excluded = {str(x) for x in cfg.get("exclude", [])}
     return rel in excluded or any(
-        _glob_match(rel, pat) for pat in excluded if "*" in pat
+        _glob_match(rel, pat) or _glob_full(rel, pat)
+        for pat in excluded if "*" in pat
     )
 
 
